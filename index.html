@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050816" />
+  <title>404 // Access Denied</title>
+  <style>
+    :root{
+      --bg:#050816;
+      --bg2:#0a1022;
+      --panel:rgba(8,13,30,.78);
+      --line:rgba(0,255,247,.18);
+      --cyan:#00fff7;
+      --pink:#ff2bd6;
+      --red:#ff4b6e;
+      --green:#58ff95;
+      --text:#e8ffff;
+      --muted:#87a5b8;
+      --shadow-cyan:0 0 10px rgba(0,255,247,.45),0 0 28px rgba(0,255,247,.18);
+      --shadow-pink:0 0 10px rgba(255,43,214,.45),0 0 28px rgba(255,43,214,.18);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      overflow:hidden;
+      font-family:Consolas,"Courier New",monospace;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(0,255,247,.08), transparent 30%),
+        radial-gradient(circle at 82% 20%, rgba(255,43,214,.08), transparent 28%),
+        radial-gradient(circle at 50% 85%, rgba(88,255,149,.06), transparent 35%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:38px 38px;
+      opacity:.18;
+      pointer-events:none;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.028) 0px,
+        rgba(255,255,255,.028) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      opacity:.06;
+      animation:scan 8s linear infinite;
+      pointer-events:none;
+    }
+
+    .noise{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.035;
+      background-image:
+        radial-gradient(circle at 15% 20%, #fff .5px, transparent .8px),
+        radial-gradient(circle at 80% 40%, #fff .5px, transparent .8px),
+        radial-gradient(circle at 35% 80%, #fff .4px, transparent .7px),
+        radial-gradient(circle at 60% 12%, #fff .4px, transparent .7px);
+      background-size:150px 150px;
+      animation:flicker .22s infinite alternate;
+    }
+
+    @keyframes scan{from{transform:translateY(0)}to{transform:translateY(12px)}}
+    @keyframes flicker{0%{opacity:.028}100%{opacity:.04}}
+
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+    }
+
+    .panel{
+      width:min(980px,100%);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      overflow:hidden;
+      backdrop-filter:blur(12px);
+      box-shadow:
+        0 25px 80px rgba(0,0,0,.55),
+        inset 0 0 0 1px rgba(255,255,255,.03),
+        0 0 24px rgba(0,255,247,.08);
+      position:relative;
+    }
+
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+      transform:translateX(-100%);
+      animation:sweep 7s linear infinite;
+      pointer-events:none;
+    }
+
+    @keyframes sweep{to{transform:translateX(100%)}}
+
+    .topbar,.footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:14px 18px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), transparent);
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      font-size:.8rem;
+    }
+
+    .footer{
+      border-top:1px solid var(--line);
+      border-bottom:none;
+      background:linear-gradient(0deg, rgba(255,255,255,.03), transparent);
+      color:var(--muted);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:var(--cyan);
+      text-shadow:var(--shadow-cyan);
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--cyan);
+      box-shadow:0 0 12px var(--cyan);
+    }
+
+    .content{
+      display:grid;
+      grid-template-columns:1.2fr .9fr;
+    }
+
+    .left,.right{padding:34px 28px}
+    .left{border-right:1px solid var(--line)}
+
+    .pill{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,75,110,.35);
+      background:rgba(255,75,110,.08);
+      color:var(--red);
+      font-size:.78rem;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      margin-bottom:18px;
+    }
+
+    .code404{
+      margin:0;
+      font-size:clamp(4rem, 11vw, 8rem);
+      line-height:.92;
+      letter-spacing:.06em;
+      color:#fff;
+      position:relative;
+      text-shadow:-2px 0 var(--pink),2px 0 var(--cyan),0 0 24px rgba(255,255,255,.18);
+      animation:glitch 2.6s infinite;
+      font-weight:800;
+    }
+
+    .code404::before,.code404::after{
+      content:attr(data-text);
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+    }
+
+    .code404::before{
+      color:var(--pink);
+      transform:translate(-2px,-1px);
+      opacity:.5;
+      clip-path:inset(12% 0 56% 0);
+    }
+
+    .code404::after{
+      color:var(--cyan);
+      transform:translate(2px,1px);
+      opacity:.5;
+      clip-path:inset(64% 0 8% 0);
+    }
+
+    @keyframes glitch{
+      0%,100%{transform:translate(0)}
+      20%{transform:translate(-1px,1px)}
+      40%{transform:translate(1px,-1px)}
+      60%{transform:translate(-1px,0)}
+      80%{transform:translate(1px,1px)}
+    }
+
+    h2{
+      margin:16px 0 10px;
+      color:var(--cyan);
+      font-size:clamp(1.25rem, 3vw, 2rem);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      text-shadow:var(--shadow-cyan);
+    }
+
+    p{
+      margin:0;
+      color:#aac8d6;
+      line-height:1.8;
+      max-width:60ch;
+      font-size:.98rem;
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:28px;
+    }
+
+    .btn{
+      position:relative;
+      display:inline-block;
+      text-decoration:none;
+      color:var(--text);
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      padding:14px 18px;
+      border-radius:14px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-size:.92rem;
+      transition:.25s ease;
+      overflow:hidden;
+    }
+
+    .btn.primary{
+      background:linear-gradient(90deg, rgba(0,255,247,.12), rgba(255,43,214,.12));
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(0,255,247,.42);
+      box-shadow:var(--shadow-cyan);
+    }
+
+    .btn::before{
+      content:"";
+      position:absolute;
+      top:0;left:-120%;
+      width:100%;height:100%;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      transition:.6s ease;
+    }
+
+    .btn:hover::before{left:120%}
+
+    .terminal{
+      background:rgba(2,6,16,.86);
+      border:1px solid rgba(0,255,247,.18);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:inset 0 0 20px rgba(0,255,247,.03);
+    }
+
+    .term-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+      gap:10px;
+    }
+
+    .term-title{
+      color:var(--green);
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      font-size:.82rem;
+    }
+
+    .lights{display:flex;gap:8px}
+    .lights span{
+      width:10px;height:10px;border-radius:50%;display:block;
+    }
+    .lights span:nth-child(1){background:#ff4d6d}
+    .lights span:nth-child(2){background:#ffd166}
+    .lights span:nth-child(3){background:#58ff95}
+
+    .log{display:grid;gap:10px;font-size:.88rem;line-height:1.55}
+    .line{display:flex;gap:10px;color:#b0d5df;min-height:1.4em}
+    .prompt{color:var(--green)}
+    .typed::after{
+      content:"_";
+      animation:blink .8s step-end infinite;
+      color:var(--green);
+      margin-left:2px;
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    .sysbox{margin-top:18px;display:grid;gap:12px}
+    .sysrow{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.04);
+      background:rgba(255,255,255,.015);
+      font-size:.85rem;
+    }
+
+    .sysrow span:first-child{
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.1em;
+    }
+
+    .sysrow span:last-child{color:var(--cyan)}
+
+    .pulse{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:var(--green);
+    }
+
+    .pulse::before{
+      content:"";
+      width:8px;height:8px;border-radius:50%;
+      background:var(--green);
+      box-shadow:0 0 12px var(--green);
+      animation:pulse 1.2s infinite;
+    }
+
+    @keyframes pulse{
+      0%{transform:scale(1);opacity:1}
+      70%{transform:scale(1.8);opacity:0}
+      100%{transform:scale(1.8);opacity:0}
+    }
+
+    @media (max-width: 860px){
+      body{overflow:auto}
+      .content{grid-template-columns:1fr}
+      .left{border-right:none;border-bottom:1px solid var(--line)}
+      .left,.right{padding:28px 20px}
+      .topbar,.footer{flex-direction:column;align-items:flex-start}
+      .actions{flex-direction:column}
+      .btn{text-align:center;width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <main class="wrap">
+    <section class="panel">
+      <div class="topbar">
+        <div class="brand"><span class="dot"></span><span>Neon Security Grid</span></div>
+        <div>Encrypted Session / Error State</div>
+      </div>
+
+      <div class="content">
+        <div class="left">
+          <div class="pill">Critical Exception</div>
+          <h1 class="code404" data-text="404">404</h1>
+          <h2>Access Node Not Found</h2>
+          <p>
+            The requested endpoint has been removed, renamed, or is temporarily hidden behind
+            a secured network layer. Connection to the target resource failed. Re-route your request
+            or return to the main system dashboard.
+          </p>
+
+          <div class="actions">
+            <a class="btn primary" href="/">Return Home</a>
+            <a class="btn" href="javascript:history.back()">Go Back</a>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="terminal">
+            <div class="term-head">
+              <div class="term-title">System Console</div>
+              <div class="lights"><span></span><span></span><span></span></div>
+            </div>
+
+            <div class="log">
+              <div class="line"><span class="prompt">&gt;</span><span>booting diagnostic protocol...</span></div>
+              <div class="line"><span class="prompt">&gt;</span><span>checking route map...</span></div>
+              <div class="line"><span class="prompt">&gt;</span><span>verifying access token...</span></div>
+              <div class="line"><span class="prompt">&gt;</span><span class="typed" id="typed"></span></div>
+            </div>
+
+            <div class="sysbox">
+              <div class="sysrow"><span>Status</span><span>Denied</span></div>
+              <div class="sysrow"><span>Protocol</span><span>HTTP_SECURE/1.1</span></div>
+              <div class="sysrow"><span>Node</span><span id="nodePath">/unknown-path</span></div>
+              <div class="sysrow"><span>Trace</span><span id="traceId">#NX-000000</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div>System Failure / Unauthorized Route</div>
+        <div class="pulse">Firewall Active</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const messages = [
+        "error 404: target endpoint not found",
+        "route integrity compromised",
+        "rerouting request to fallback node",
+        "security layer returned null response"
+      ];
+
+      const typedEl = document.getElementById("typed");
+      const nodePath = document.getElementById("nodePath");
+      const traceId = document.getElementById("traceId");
+
+      nodePath.textContent = window.location.pathname || "/unknown-path";
+      traceId.textContent = "#NX-" + Math.floor(Math.random() * 900000 + 100000);
+
+      let msgIndex = 0;
+      let charIndex = 0;
+      let deleting = false;
+
+      function typeLoop() {
+        const current = messages[msgIndex];
+
+        if (!deleting) {
+          typedEl.textContent = current.slice(0, charIndex++);
+          if (charIndex > current.length) {
+            deleting = true;
+            setTimeout(typeLoop, 1100);
+            return;
+          }
+        } else {
+          typedEl.textContent = current.slice(0, charIndex--);
+          if (charIndex < 0) {
+            deleting = false;
+            msgIndex = (msgIndex + 1) % messages.length;
+          }
+        }
+
+        setTimeout(typeLoop, deleting ? 28 : 52);
+      }
+
+      typeLoop();
+
+      setInterval(() => {
+        document.title = document.title === "404 // Access Denied"
+          ? "System Error // Access Denied"
+          : "404 // Access Denied";
+      }, 1800);
+    })();
+  </script>
+</body>
+</html>

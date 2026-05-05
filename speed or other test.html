@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyberpunk Net Scanner Pro</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;
+  background:#03040a;
+  font-family:Consolas,monospace;
+  color:white;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:
+  radial-gradient(circle at 20% 10%,rgba(255,0,100,.35),transparent 35%),
+  radial-gradient(circle at 80% 80%,rgba(0,255,255,.25),transparent 35%),
+  linear-gradient(rgba(0,255,255,.05) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,255,255,.05) 1px,transparent 1px);
+  background-size:auto,auto,40px 40px,40px 40px;
+  z-index:-1;
+}
+.container{max-width:1100px;margin:auto;padding:30px 18px}
+h1{
+  text-align:center;
+  font-size:clamp(38px,8vw,80px);
+  text-shadow:0 0 18px #00fff0,0 0 35px #ff006e;
+}
+.sub{text-align:center;color:#00fff0;margin:12px 0 30px;letter-spacing:2px}
+
+.speed-box{
+  max-width:420px;
+  margin:0 auto 30px;
+  padding:25px;
+  border-radius:25px;
+  background:rgba(8,12,25,.8);
+  border:1px solid rgba(0,255,240,.4);
+  box-shadow:0 0 35px rgba(0,255,240,.25);
+  text-align:center;
+}
+.big-speed{
+  font-size:52px;
+  font-weight:bold;
+  text-shadow:0 0 20px #00fff0;
+}
+.label{color:#ff2bd6;margin-top:6px}
+
+.progress{
+  height:13px;
+  background:rgba(255,255,255,.1);
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:18px;
+}
+.bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#00fff0,#ff006e);
+  transition:.25s;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+}
+.card{
+  padding:22px;
+  border-radius:18px;
+  background:rgba(10,15,30,.78);
+  border:1px solid rgba(0,255,240,.35);
+  box-shadow:0 0 25px rgba(0,255,240,.13);
+}
+.card h3{color:#ff2bd6;font-size:13px;margin-bottom:10px}
+.value{font-size:20px;word-break:break-word}
+
+button{
+  display:block;
+  margin:35px auto 20px;
+  padding:16px 36px;
+  border:0;
+  border-radius:14px;
+  background:linear-gradient(135deg,#00fff0,#ff006e);
+  color:white;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 0 30px rgba(0,255,240,.45);
+}
+.log{
+  margin-top:25px;
+  padding:18px;
+  border-radius:16px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(0,255,240,.25);
+  color:#bffffb;
+  line-height:1.7;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>NET SCANNER</h1>
+  <p class="sub">CYBERPUNK INTERNET ANALYZER PRO</p>
+
+  <div class="speed-box">
+    <div class="big-speed" id="mainSpeed">0.00</div>
+    <div class="label" id="speedLabel">Mbps</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><h3>IP ADDRESS</h3><div class="value" id="ip">Loading...</div></div>
+    <div class="card"><h3>COUNTRY</h3><div class="value" id="country">Loading...</div></div>
+    <div class="card"><h3>CITY</h3><div class="value" id="city">Loading...</div></div>
+    <div class="card"><h3>ISP</h3><div class="value" id="isp">Loading...</div></div>
+    <div class="card"><h3>TIMEZONE</h3><div class="value" id="timezone">Loading...</div></div>
+    <div class="card"><h3>PING</h3><div class="value" id="ping">-- ms</div></div>
+    <div class="card"><h3>DOWNLOAD</h3><div class="value" id="download">-- Mbps</div></div>
+    <div class="card"><h3>UPLOAD</h3><div class="value" id="upload">-- Mbps</div></div>
+    <div class="card"><h3>STATUS</h3><div class="value" id="status">Checking...</div></div>
+  </div>
+
+  <button onclick="runTest()">RUN FULL SCAN</button>
+
+  <div class="log" id="log">&gt; System Ready...</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function log(text){
+  $("log").innerHTML += "<br>&gt; " + text;
+}
+
+function setStatus(){
+  $("status").textContent = navigator.onLine ? "ONLINE" : "OFFLINE";
+}
+
+function animateNumber(target, label){
+  $("speedLabel").textContent = label;
+  let current = 0;
+  let step = target / 45;
+  const timer = setInterval(()=>{
+    current += step;
+    if(current >= target){
+      current = target;
+      clearInterval(timer);
+    }
+    $("mainSpeed").textContent = current.toFixed(2);
+  },25);
+}
+
+async function getIPInfo(){
+  const apis = [
+    async()=>{
+      const r = await fetch("https://ipwho.is/");
+      const d = await r.json();
+      return {
+        ip:d.ip,
+        country:d.country,
+        city:d.city,
+        isp:d.connection?.isp,
+        timezone:d.timezone?.id
+      };
+    },
+    async()=>{
+      const r = await fetch("https://ipapi.co/json/");
+      const d = await r.json();
+      return {
+        ip:d.ip,
+        country:d.country_name,
+        city:d.city,
+        isp:d.org,
+        timezone:d.timezone
+      };
+    },
+    async()=>{
+      const r = await fetch("https://ipinfo.io/json");
+      const d = await r.json();
+      return {
+        ip:d.ip,
+        country:d.country,
+        city:d.city,
+        isp:d.org,
+        timezone:d.timezone
+      };
+    }
+  ];
+
+  for(const api of apis){
+    try{
+      const d = await api();
+      if(d.ip){
+        $("ip").textContent = d.ip || "Unknown";
+        $("country").textContent = d.country || "Unknown";
+        $("city").textContent = d.city || "Unknown";
+        $("isp").textContent = d.isp || "Unknown";
+        $("timezone").textContent = d.timezone || "Unknown";
+        log("IP information loaded ✔");
+        return;
+      }
+    }catch(e){}
+  }
+
+  log("IP information failed ✖");
+}
+
+async function pingTest(){
+  try{
+    const start = performance.now();
+    await fetch("https://www.cloudflare.com/favicon.ico?x="+Math.random(),{
+      mode:"no-cors",
+      cache:"no-store"
+    });
+    const ping = Math.round(performance.now() - start);
+    $("ping").textContent = ping + " ms";
+    log("Ping tested ✔");
+  }catch(e){
+    $("ping").textContent = "Failed";
+    log("Ping failed ✖");
+  }
+}
+
+async function downloadTest(){
+  try{
+    $("download").textContent = "Testing...";
+    $("bar").style.width = "0%";
+
+    const size = 10000000;
+    const url = "https://speed.cloudflare.com/__down?bytes="+size+"&x="+Math.random();
+
+    const start = performance.now();
+    const res = await fetch(url,{cache:"no-store"});
+    const reader = res.body.getReader();
+
+    let received = 0;
+
+    while(true){
+      const {done,value} = await reader.read();
+      if(done) break;
+      received += value.length;
+      $("bar").style.width = Math.min((received/size)*100,100) + "%";
+    }
+
+    const seconds = (performance.now() - start) / 1000;
+    const mbps = (received * 8 / seconds / 1024 / 1024);
+
+    $("download").textContent = mbps.toFixed(2) + " Mbps";
+    animateNumber(mbps,"Download Mbps");
+    log("Download speed complete ✔");
+    return mbps;
+
+  }catch(e){
+    $("download").textContent = "Failed";
+    log("Download speed failed ✖");
+  }
+}
+
+async function uploadTest(){
+  try{
+    $("upload").textContent = "Testing...";
+    $("bar").style.width = "0%";
+
+    const size = 3000000;
+    const data = new Uint8Array(size);
+    crypto.getRandomValues(data);
+
+    const start = performance.now();
+
+    await fetch("https://speed.cloudflare.com/__up?bytes="+size+"&x="+Math.random(),{
+      method:"POST",
+      body:data,
+      cache:"no-store",
+      headers:{
+        "Content-Type":"application/octet-stream"
+      }
+    });
+
+    const seconds = (performance.now() - start) / 1000;
+    const mbps = (size * 8 / seconds / 1024 / 1024);
+
+    $("bar").style.width = "100%";
+    $("upload").textContent = mbps.toFixed(2) + " Mbps";
+    animateNumber(mbps,"Upload Mbps");
+    log("Upload speed complete ✔");
+    return mbps;
+
+  }catch(e){
+    $("upload").textContent = "Failed";
+    log("Upload speed failed ✖");
+  }
+}
+
+async function runTest(){
+  $("log").innerHTML = "&gt; Running full scan...";
+  $("mainSpeed").textContent = "0.00";
+  $("bar").style.width = "0%";
+
+  setStatus();
+  await getIPInfo();
+  await pingTest();
+  await downloadTest();
+  await uploadTest();
+
+  log("Full scan finished ✔");
+}
+
+setStatus();
+getIPInfo();
+
+window.addEventListener("online",setStatus);
+window.addEventListener("offline",setStatus);
+</script>
+</body>
+</html>
